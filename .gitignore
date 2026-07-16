@@ -1,0 +1,17 @@
+# dependencies
+node_modules/
+
+# env files
+.env
+.env.local
+
+# build output
+dist/
+build/
+
+# prisma
+generated/
+
+# OS
+.DS_Store
+Thumbs.db
