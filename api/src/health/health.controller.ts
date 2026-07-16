@@ -8,6 +8,10 @@ export class HealthController {
   @Get()
   async check() {
     await this.prisma.$queryRaw`SELECT 1`; // throws if DB unreachable
-    return { status: 'ok', db: 'connected', timestamp: new Date().toISOString() };
+    return {
+      status: 'ok',
+      db: 'connected',
+      timestamp: new Date().toISOString(),
+    };
   }
 }

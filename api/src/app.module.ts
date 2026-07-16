@@ -3,11 +3,13 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthModule } from './health/health.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }), // isGlobal: available in every module without re-importing
     HealthModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

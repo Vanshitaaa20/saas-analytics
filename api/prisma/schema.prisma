@@ -31,6 +31,7 @@ model User {
   createdAt    DateTime @default(now())
 
   memberships Membership[]
+  refreshTokens RefreshToken[]
 
   @@map("users")
 }
@@ -66,4 +67,18 @@ model Invite {
 
   @@index([orgId])
   @@map("invites")
+}
+model RefreshToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("refresh_tokens")
 }
