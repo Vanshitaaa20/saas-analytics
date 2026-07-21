@@ -20,6 +20,8 @@ model Organization {
 
   memberships Membership[]
   invites     Invite[]
+  events Event[]
+  rollups Rollup[]
 
   @@map("organizations")
 }
@@ -81,4 +83,34 @@ model RefreshToken {
 
   @@index([userId])
   @@map("refresh_tokens")
+}
+model Event {
+  id        String   @id @default(cuid())
+  name      String
+  payload   Json?
+  createdAt DateTime @default(now())
+
+  orgId String
+  org   Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, createdAt])
+  @@index([orgId, name])
+  @@map("events")
+}
+model Rollup {
+  id         String   @id @default(cuid())
+  bucketType String
+  bucketAt   DateTime
+  eventName  String
+  count      Int      @default(0)
+
+  orgId String
+  org   Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([orgId, bucketType, bucketAt, eventName])
+  @@index([orgId, bucketType, bucketAt])
+  @@map("rollups")
 }
