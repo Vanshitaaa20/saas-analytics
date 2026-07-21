@@ -1,6 +1,6 @@
 "use client";
 import { ReactNode } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 export default function StatPill({ icon: Icon, label, value }: { icon: any; label: string; value: string | number }) {
   return (
