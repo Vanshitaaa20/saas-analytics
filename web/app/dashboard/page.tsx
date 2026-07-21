@@ -3,62 +3,17 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useOrg } from "@/lib/useOrg";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { Activity, Users, CreditCard } from "lucide-react";
+import GlassCard from "@/components/GlassCard";
+import { Activity, Users, CreditCard, Loader2, ArrowUpRight, Zap } from "lucide-react";
 
 export default function DashboardHome() {
-  const { orgId, orgName, loading: orgLoading } = useOrg();
-  const [summary, setSummary] = useState<any>(null);
-  const [volume, setVolume] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (!orgId) return;
-    api.get(`/orgs/${orgId}/dashboard/summary`).then((res) => setSummary(res.data));
-    api.get(`/orgs/${orgId}/dashboard/event-volume`).then((res) => {
-      const chartData = res.data.map((r: any) => ({
-        time: new Date(r.bucketAt).toLocaleTimeString([], { hour: "2-digit" }),
-        count: r.count,
-      }));
-      setVolume(chartData);
-    });
-  }, [orgId]);
-
-  if (orgLoading) return <p className="text-sm text-slate-500">Loading...</p>;
-  if (!orgId) return <p className="text-sm text-slate-500">No organization found.</p>;
-
-  return (
-    <div>
-      <h1 className="text-2xl font-semibold text-slate-900">{orgName}</h1>
-      <p className="mt-1 text-sm text-slate-500">Overview</p>
-
-      <div className="mt-6 grid grid-cols-3 gap-4">
-        <StatCard icon={Activity} label="Total Events" value={summary?.totalEvents ?? "—"} />
-        <StatCard icon={Users} label="Members" value={summary?.memberCount ?? "—"} />
-        <StatCard icon={CreditCard} label="Plan" value={summary?.planTier ?? "—"} />
-      </div>
-
-      <div className="mt-6 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-sm font-medium text-slate-700">Event Volume</h2>
-        <ResponsiveContainer width="100%" height={250}>
-          <LineChart data={volume}>
-            <XAxis dataKey="time" stroke="#94a3b8" fontSize={12} />
-            <YAxis stroke="#94a3b8" fontSize={12} />
-            <Tooltip />
-            <Line type="monotone" dataKey="count" stroke="#2563eb" strokeWidth={2} dot={false} />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
-  );
+ const { orgId, orgName, loading: orgLoading, error } = useOrg(); const [summary,setSummary]=useState<any>(null); const [volume,setVolume]=useState<any[]>([]); const [loading,setLoading]=useState(true); const [fetchError,setFetchError]=useState<string|null>(null);
+ useEffect(()=>{if(!orgId){setSummary(null);setVolume([]);setLoading(false);return} let active=true;setLoading(true);setFetchError(null);Promise.all([api.get(`/orgs/${orgId}/dashboard/summary`),api.get(`/orgs/${orgId}/dashboard/event-volume`)]).then(([a,b])=>{if(active){setSummary(a.data);setVolume((b.data||[]).map((x:any)=>({time:new Date(x.bucketAt).toLocaleTimeString([],{hour:"2-digit"}),count:x.count})))}}).catch(()=>active&&setFetchError("We couldn't load your overview data right now.")).finally(()=>active&&setLoading(false));return()=>{active=false}},[orgId]);
+ if(orgLoading||loading)return <PageState title="Loading overview" description="Collecting your latest metrics..." icon={Loader2} loading/>; if(error||fetchError)return <PageState title="Unable to load overview" description={error??fetchError??"Please try again in a moment."} icon={Activity}/>; if(!orgId)return <PageState title="No organization selected" description="Choose an organization from the sidebar to view its dashboard." icon={Activity}/>;
+ return <div className="mx-auto max-w-7xl"><div className="flex flex-wrap items-end justify-between gap-4"><div><div className="mb-2 flex items-center gap-2 text-xs font-medium text-blue-300"><Zap size={14}/> LIVE INTELLIGENCE</div><h1 className="text-3xl font-semibold tracking-tight text-white">{orgName}</h1><p className="mt-1 text-sm text-[#91a0c3]">Here’s what’s happening across your product today.</p></div><button className="glass-soft flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs text-[#b7c5e2]">Last 24 hours <ArrowUpRight size={14}/></button></div>
+ <div className="mt-7 grid gap-4 md:grid-cols-3"><Metric icon={Activity} label="Total events" value={summary?.totalEvents??"—"} accent="from-cyan-400 to-blue-500"/><Metric icon={Users} label="Active members" value={summary?.memberCount??"—"} accent="from-violet-400 to-fuchsia-500"/><Metric icon={CreditCard} label="Current plan" value={summary?.planTier??"—"} accent="from-blue-400 to-indigo-500"/></div>
+ <div className="mt-5 grid gap-5 lg:grid-cols-[1.6fr_.82fr]"><GlassCard className="min-h-[355px]"><div className="mb-7 flex items-start justify-between"><div><p className="text-sm font-medium text-white">Event volume</p><p className="mt-1 text-xs text-[#8493b5]">Realtime activity across all sources</p></div><span className="rounded-full bg-emerald-400/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-300">● Active</span></div>{volume.length===0?<Empty text="No event activity has been recorded yet."/>:<ResponsiveContainer width="100%" height={245}><LineChart className="chart-grid" data={volume}><XAxis dataKey="time" stroke="#7180a1" fontSize={11}/><YAxis stroke="#7180a1" fontSize={11}/><Tooltip cursor={{stroke:"rgba(129,165,255,.25)"}}/><Line type="monotone" dataKey="count" stroke="url(#grad)" strokeWidth={3} dot={false}/><defs><linearGradient id="grad" x1="0" x2="1"><stop offset="0%" stopColor="#30d5ff"/><stop offset="100%" stopColor="#9569ff"/></linearGradient></defs></LineChart></ResponsiveContainer>}</GlassCard><GlassCard className="flex flex-col"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-400/15 text-violet-300"><Zap size={18}/></div><p className="mt-5 text-sm font-medium text-white">Quick insight</p><p className="mt-2 text-sm leading-6 text-[#92a0be]">Your event stream is ready. Capture more product actions to uncover adoption patterns.</p><div className="mt-auto rounded-2xl border border-white/[.07] bg-white/[.035] p-4"><p className="text-[11px] uppercase tracking-[.16em] text-[#6d7c9e]">Health score</p><div className="mt-3 flex items-end justify-between"><span className="text-3xl font-semibold text-white">75<span className="text-base text-[#8e9dbc]">/100</span></span><span className="text-xs text-emerald-300">+12.5%</span></div><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full w-3/4 rounded-full bg-gradient-to-r from-cyan-400 to-violet-500"/></div></div></GlassCard></div></div>;
 }
-
-function StatCard({ icon: Icon, label, value }: { icon: any; label: string; value: string | number }) {
-  return (
-    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-      <div className="flex items-center gap-2 text-slate-400">
-        <Icon size={18} />
-        <span className="text-xs font-medium">{label}</span>
-      </div>
-      <p className="mt-2 text-2xl font-semibold text-slate-900">{value}</p>
-    </div>
-  );
-}
+function Metric({icon:Icon,label,value,accent}:{icon:any;label:string;value:string|number;accent:string}){return <GlassCard className="relative overflow-hidden"><div className={`absolute -right-7 -top-7 h-24 w-24 rounded-full bg-gradient-to-br ${accent} opacity-20 blur-2xl`}/><div className="flex items-start justify-between"><div><p className="text-xs font-medium uppercase tracking-[.14em] text-[#8493b5]">{label}</p><p className="mt-3 text-3xl font-semibold text-white">{value}</p><p className="mt-2 text-xs text-emerald-300">+12.5% <span className="text-[#7180a1]">from last period</span></p></div><div className={`rounded-xl bg-gradient-to-br ${accent} p-2.5 text-white shadow-lg`}><Icon size={18}/></div></div></GlassCard>}
+function Empty({text}:{text:string}){return <div className="flex h-48 items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[.02] text-sm text-[#8493b5]">{text}</div>}
+function PageState({title,description,icon:Icon,loading=false}:{title:string;description:string;icon:any;loading?:boolean}){return <div className="glass flex min-h-[60vh] flex-col items-center justify-center rounded-[22px] p-10 text-center"><div className={`rounded-full bg-blue-400/10 p-3 ${loading?"animate-pulse":""}`}><Icon size={20} className={loading?"animate-spin text-blue-300":"text-blue-300"}/></div><h2 className="mt-4 text-lg font-semibold text-white">{title}</h2><p className="mt-2 max-w-sm text-sm text-[#91a0c3]">{description}</p></div>}

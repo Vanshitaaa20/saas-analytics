@@ -69,4 +69,16 @@ export class OrgService {
       include: { user: { select: { id: true, email: true } } },
     });
   }
+
+  async getMyOrgs(userId: string) {
+    const memberships = await this.prisma.membership.findMany({
+      where: { userId },
+      include: { org: true },
+    });
+    return memberships.map((m) => ({
+      id: m.org.id,
+      name: m.org.name,
+      role: m.role,
+    }));
+  }
 }

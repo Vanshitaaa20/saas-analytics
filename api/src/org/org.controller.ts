@@ -18,6 +18,11 @@ export class OrgController {
     return this.orgService.createOrg(user.userId, dto);
   }
 
+  @Get('mine')
+  getMyOrgs(@CurrentUser() user: any) {
+    return this.orgService.getMyOrgs(user.userId);
+  }
+
   @Get(':orgId/members')
   getMembers(@CurrentUser() user: any, @Param('orgId') orgId: string) {
     return this.orgService.getMembers(user.userId, orgId);

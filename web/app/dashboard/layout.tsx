@@ -1,32 +1,19 @@
+"use client";
 import Link from "next/link";
-import { LayoutDashboard, BarChart3, Settings, Users } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { LayoutDashboard, BarChart3, Settings, Users, ChevronDown, Sparkles, Bell, Command } from "lucide-react";
+import { OrgProvider, useOrg } from "@/lib/useOrg";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const navItems = [
-    { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-    { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
-    { href: "/dashboard/members", label: "Members", icon: Users },
-    { href: "/dashboard/settings", label: "Settings", icon: Settings },
-  ];
-
-  return (
-    <div className="flex min-h-screen bg-slate-50">
-      <aside className="w-64 border-r border-slate-100 bg-white p-6">
-        <div className="mb-8 text-lg font-semibold text-slate-900">Analytics</div>
-        <nav className="space-y-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-600"
-            >
-              <item.icon size={18} />
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-      </aside>
-      <main className="flex-1 p-8">{children}</main>
-    </div>
-  );
+function DashboardSidebar() {
+  const pathname = usePathname(); const { orgs, orgId, selectedOrg, selectOrg, loading } = useOrg();
+  const navItems = [{ href:"/dashboard", label:"Overview", icon:LayoutDashboard }, { href:"/dashboard/analytics", label:"Analytics", icon:BarChart3 }, { href:"/dashboard/members", label:"Members", icon:Users }, { href:"/dashboard/settings", label:"Settings", icon:Settings }];
+  return <aside className="sidebar relative z-10 flex w-[272px] shrink-0 flex-col border-r border-white/[.07] bg-[#070d27]/55 px-4 py-6 backdrop-blur-2xl">
+    <Link href="/dashboard" className="mb-9 flex items-center gap-3 px-3"><span className="grid h-9 w-9 place-items-center rounded-xl glow-button"><Sparkles size={18}/></span><span className="text-lg font-semibold tracking-tight">Pulse<span className="text-blue-400">lytics</span></span></Link>
+    <p className="px-3 text-[10px] font-semibold uppercase tracking-[.2em] text-[#6e7da2]">Workspace</p>
+    <div className="glass-soft relative mx-1 mt-3 rounded-2xl p-2"><select value={orgId ?? ""} onChange={e=>selectOrg(e.target.value)} disabled={loading || !orgs.length} className="w-full appearance-none bg-transparent px-2 py-1 text-sm font-medium text-slate-100 outline-none"><option value="">No organizations</option>{orgs.map(org=><option className="bg-slate-950" key={org.id} value={org.id}>{org.name}</option>)}</select><ChevronDown size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#91a0c3]"/><p className="px-2 pb-1 text-[11px] capitalize text-[#7382a7]">{selectedOrg?.role ?? "Select organization"}</p></div>
+    <nav className="mt-8 space-y-1">{navItems.map(item=>{const active = pathname===item.href || item.href!=="/dashboard" && pathname.startsWith(item.href); return <Link key={item.href} href={item.href} className={`group flex items-center gap-3 rounded-xl px-3 py-3 text-sm transition ${active ? "bg-gradient-to-r from-blue-500/25 to-violet-500/15 text-white shadow-[inset_0_1px_rgba(255,255,255,.1)]" : "text-[#8d9ab9] hover:bg-white/[.055] hover:text-white"}`}><item.icon size={18} className={active ? "text-[#66a9ff]" : "group-hover:text-[#72aaff]"}/>{item.label}{active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-blue-400 shadow-[0_0_10px_#60a5fa]"/>}</Link>})}</nav>
+    <div className="glass-soft mt-auto rounded-2xl p-4"><p className="text-xs font-medium text-white">Need a hand?</p><p className="mt-1 text-[11px] leading-5 text-[#7d8bad]">Discover how your product is performing.</p><button className="mt-3 flex items-center gap-1.5 text-xs font-medium text-blue-300"><Command size={13}/> View guide</button></div>
+  </aside>;
 }
+function Topbar(){ return <header className="relative z-10 flex h-[76px] items-center justify-between border-b border-white/[.07] px-5 md:px-8"><div><p className="text-xs text-[#7180a5]">Your analytics workspace</p><p className="mt-0.5 text-sm font-medium text-white">Good to see you again</p></div><div className="flex items-center gap-3"><button className="glass-soft grid h-9 w-9 place-items-center rounded-xl text-[#a6b2cf]"><Bell size={16}/></button><div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-cyan-400 to-violet-500 text-xs font-bold">VS</div></div></header> }
+export default function DashboardLayout({children}:{children:React.ReactNode}){return <OrgProvider><div className="app-shell flex"><div className="noise"/><DashboardSidebar/><div className="relative z-10 min-w-0 flex-1"><Topbar/><main className="content-wrap p-5 md:p-8">{children}</main></div></div></OrgProvider>}
