@@ -6,6 +6,7 @@ import { HealthModule } from './health/health.module';
 import { AuthModule } from './auth/auth.module';
 import { OrgModule } from './org/org.module';
 import { IngestionModule } from './ingestion/ingestion.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { IngestionModule } from './ingestion/ingestion.module';
     AuthModule,
     OrgModule,
     IngestionModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
