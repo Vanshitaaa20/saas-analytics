@@ -4,12 +4,14 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthModule } from './health/health.module';
 import { AuthModule } from './auth/auth.module';
+import { OrgModule } from './org/org.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }), // isGlobal: available in every module without re-importing
+    ConfigModule.forRoot({ isGlobal: true }),
     HealthModule,
     AuthModule,
+    OrgModule,
   ],
   controllers: [AppController],
   providers: [AppService],
