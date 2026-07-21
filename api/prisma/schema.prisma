@@ -22,6 +22,7 @@ model Organization {
   invites     Invite[]
   events Event[]
   rollups Rollup[]
+  planTier PlanTier @default(FREE)
 
   @@map("organizations")
 }
@@ -113,4 +114,9 @@ model Rollup {
   @@unique([orgId, bucketType, bucketAt, eventName])
   @@index([orgId, bucketType, bucketAt])
   @@map("rollups")
+}
+
+enum PlanTier {
+  FREE
+  PRO
 }
