@@ -6,6 +6,8 @@ A mini analytics SaaS: organizations send events through an ingestion API, a que
 
 ---
 
+<img width="1918" height="905" alt="image" src="https://github.com/user-attachments/assets/f7a6a6b6-41a1-4ef8-a9b5-8b8367858120" />
+
 ## Architecture
 
 ```
