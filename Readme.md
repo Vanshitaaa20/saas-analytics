@@ -5,6 +5,7 @@ A mini analytics SaaS: organizations send events through an ingestion API, a que
 **Stack:** Next.js (TypeScript, Tailwind) · NestJS · PostgreSQL · Prisma · Redis · BullMQ
 
 ---
+<img width="1918" height="912" alt="image" src="https://github.com/user-attachments/assets/27843c54-a9ae-4777-b2bf-1eb03bc355fa" />
 
 <img width="1918" height="905" alt="image" src="https://github.com/user-attachments/assets/f7a6a6b6-41a1-4ef8-a9b5-8b8367858120" />
 
